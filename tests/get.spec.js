@@ -1,24 +1,36 @@
 const { RuleTester } = require('eslint');
 const { rules } = require('../index');
 
-const ruleTester = new RuleTester();
+const ruleTester = new RuleTester({ parserOptions: { ecmaVersion: 2015 } });
 
-ruleTester.run('get', rules.get, {
+ruleTester.run("get", rules.get, {
   valid: [
     {
-      name: 'success',
-      code: "function getName(){ return ''}",
+      code: "function getName(){ return 'cxr'}",
+    },
+    {
+      code: "function setName(){}",
     },
   ],
   invalid: [
     {
-      name: 'body is empty',
-      code: 'function getName(){}',
-      errors: [
-        {
-          message: 'getName must return a value',
-        },
-      ],
+      name: "should throw error when function doesn't return value",
+      code: "function getName(){}",
+      output: "function getName(){return ''\r}",
+      errors: [{ message: "getXX function name must return a value" }],
+    },
+    {
+      name: "should throw error when function doesn't return value",
+      code: "function getName(){ const name = 'cxr'}",
+      errors: [{ message: "getXX function name must return a value" }],
+      output: `function getName(){ const name = 'cxr';return ''\r}`,
+    },
+    {
+      name: "no fix",
+      code: "function getName(){}",
+      output: "function getName(){}",
+      options: [false],
+      errors: [{ message: "getXX function name must return a value" }],
     },
   ],
 });
